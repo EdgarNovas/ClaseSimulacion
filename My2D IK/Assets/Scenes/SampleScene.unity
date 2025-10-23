@@ -370,12 +370,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c36760db72d18174990d29b12418652a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  joint0: {fileID: 871636412}
-  joint1: {fileID: 1072248850}
-  joint2: {fileID: 1596032436}
+  Joint0: {fileID: 871636412}
+  Joint1: {fileID: 1072248850}
+  Joint2: {fileID: 1596032436}
   endEffector: {fileID: 1353892175}
   target: {fileID: 2026802153}
-  apha: 0.1
+  alpha: 0.01
 --- !u!212 &871636411
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -788,7 +788,7 @@ Transform:
   m_GameObject: {fileID: 2026802151}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 8.13, y: 1.42, z: 0}
+  m_LocalPosition: {x: 0.18, y: 1.9, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
