@@ -31,6 +31,11 @@ public class Gradient : MonoBehaviour
     Vector3 m_t = Vector3.zero;
     Vector3 v_t = Vector3.zero;
 
+    //Angle constraints
+    public Vector2 joint1Limits = new Vector2(-Mathf.PI * 0.75f, Mathf.PI * 0.75f); //-135 degrees and 135 degrees
+    public Vector2 joint2Limits = new Vector2(-Mathf.PI * 0.5f, Mathf.PI * 0.5f); //pi * 2 es 90 graus ya que 2 * pi es una circumferencia
+    public Vector2 joint3Limits = new Vector2(-Mathf.PI * 0.5f, Mathf.PI * 0.5f); //pi * 2 es 90 graus ya que 2 * pi es una circumferencia
+
     void Start()
     {
         l1 = Vector3.Distance(Joint0.position, Joint1.position);
@@ -54,21 +59,31 @@ public class Gradient : MonoBehaviour
             Vector3 newAlpha = AdaptiveLearningRate(gradient);
 
             theta += -newAlpha;
-            endEffector.position = GetEndEffectorPosition(theta);
+            
+            theta = ApplyConstraints(theta);
+
+            FordwardKinematics(theta);
 
 
-            Joint1.position = GetJoint1Position();
-            Joint2.position = GetJoint2Position();
         }
 
         costFunction = Vector3.Distance(endEffector.position, target.position) * Vector3.Distance(endEffector.position, target.position);
     }
 
+    private void FordwardKinematics(Vector3 vector3)
+    {
+        Vector3 oldJ1 = Joint1.position;
+        Vector3 oldJ2 = Joint2.position;
+
+        Joint1.position = GetJoint1Position();
+        Joint2.position = GetJoint2Position(oldJ1);
+        endEffector.position = GetEndEffectorPosition(theta, oldJ2);
+    }
 
     float Cost(Vector3 theta)
     {
 
-        Vector3 endEffector = GetEndEffectorPosition(theta);
+        Vector3 endEffector = GetEndEffectorPosition(theta,Joint2.position);
 
         return Vector3.Distance(endEffector, target.position) * Vector3.Distance(endEffector, target.position);
 
@@ -97,11 +112,61 @@ public class Gradient : MonoBehaviour
 
     }
 
-
-    Vector3 GetEndEffectorPosition(Vector3 theta)
+    Vector3 GetJoint1Position()
     {
         Vector3 newPosition;
 
+        Quaternion rot0 = Quaternion.Euler(0, 0, theta.x * Mathf.Rad2Deg);
+
+        newPosition = Joint0.position + rot0 * (Joint1.position - Joint0.position);
+
+
+        /*
+        newPosition.x = Joint0.position.x + l1 * Mathf.Cos(theta.x);
+        newPosition.y = Joint0.position.y + l1 * Mathf.Sin(theta.x);
+
+        newPosition.z = 0;
+        */
+
+        return newPosition;
+    }
+
+    Vector3 GetJoint2Position(Vector3 oldJ1)
+    {
+        Vector3 newPosition;
+
+
+         
+        Quaternion rot1= Quaternion.Euler(0, 0, (theta.x + theta.y) * Mathf.Rad2Deg);
+
+
+        newPosition = Joint1.position + rot1 * (Joint2.position - oldJ1);
+
+        /*
+
+        newPosition = Joint1.position + rot1 * Joint2.position;
+
+
+        newPosition.x = Joint0.position.x + l1 * Mathf.Cos(theta.x)
+                       + l2 * Mathf.Cos(theta.x + theta.y);
+        newPosition.y = Joint0.position.y + l1 * Mathf.Sin(theta.x)
+                       + l2 * Mathf.Sin(theta.x + theta.y);
+
+        newPosition.z = 0;
+        */
+        return newPosition;
+    }
+
+
+    Vector3 GetEndEffectorPosition(Vector3 theta, Vector3 oldJ2)
+    {
+        Vector3 newPosition;
+
+        Quaternion rot3 = Quaternion.Euler(0, 0, (theta.z + theta.y + theta.x) * Mathf.Rad2Deg);
+        newPosition = Joint2.position + rot3 * (endEffector.position - oldJ2);
+
+
+        /*
         newPosition.x = Joint0.position.x + l1 * Mathf.Cos(theta.x)
                        + l2 * Mathf.Cos(theta.x + theta.y)
                        + l3 * Mathf.Cos(theta.x + theta.y + theta.z);
@@ -110,36 +175,50 @@ public class Gradient : MonoBehaviour
                        + l3 * Mathf.Sin(theta.x + theta.y + theta.z);
 
         newPosition.z = 0;
-
+        */
         return newPosition;
     }
 
-    Vector3 GetJoint2Position()
+    Vector3 ApplyConstraints(Vector3 proposedAngles)
     {
-        Vector3 newPosition;
+        Vector3 constrainedAngles = proposedAngles;
 
-        newPosition.x = Joint0.position.x + l1 * Mathf.Cos(theta.x)
-                       + l2 * Mathf.Cos(theta.x + theta.y);
-        newPosition.y = Joint0.position.y + l1 * Mathf.Sin(theta.x)
-                       + l2 * Mathf.Sin(theta.x + theta.y);
+        //Theta1 -  proposedAgles.x
+        if (proposedAngles.x < joint1Limits.x)
+        {
+            constrainedAngles.x = joint1Limits.x;
+        }
+        else if(proposedAngles.x > joint1Limits.y)
+        {
+            constrainedAngles.x = joint1Limits.y;
+        }
 
-        newPosition.z = 0;
 
-        return newPosition;
+        //Theta1 - proposedAgles.y
+        if (proposedAngles.y < joint2Limits.x)
+        {
+            constrainedAngles.y = joint2Limits.x;
+        }
+        else if (proposedAngles.y > joint2Limits.y)
+        {
+            constrainedAngles.y = joint2Limits.y;
+        }
+
+
+        //Theta1 - proposedAgles.z
+        if (proposedAngles.z < joint3Limits.x)
+        {
+            constrainedAngles.z = joint3Limits.x;
+        }
+        else if (proposedAngles.z > joint3Limits.y)
+        {
+            constrainedAngles.z = joint3Limits.y;
+        }
+
+        return constrainedAngles;
+
+
     }
-
-    Vector3 GetJoint1Position()
-    {
-        Vector3 newPosition;
-
-        newPosition.x = Joint0.position.x + l1 * Mathf.Cos(theta.x);
-        newPosition.y = Joint0.position.y + l1 * Mathf.Sin(theta.x);
-
-        newPosition.z = 0;
-
-        return newPosition;
-    }
-
 
     Vector3 AdaptiveLearningRate(Vector3 gradient)
     {
