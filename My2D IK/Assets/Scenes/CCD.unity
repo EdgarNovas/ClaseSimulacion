@@ -477,6 +477,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1413816653}
   - component: {fileID: 1413816652}
+  - component: {fileID: 1413816654}
   m_Layer: 0
   m_Name: CCD
   m_TagString: Untagged
@@ -491,7 +492,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1413816651}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 053209789b769f84f9202c28f935960c, type: 3}
   m_Name: 
@@ -519,6 +520,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1413816654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1413816651}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2b764cbab6fc544e9720db636e7a4b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  joints:
+  - {fileID: 1082350550}
+  - {fileID: 275136144}
+  - {fileID: 748159858}
+  endEffector: {fileID: 2073817424}
+  target: {fileID: 935659111}
+  tolerance: 0.01
+  maxIterations: 100000
 --- !u!1 &1870616732
 GameObject:
   m_ObjectHideFlags: 0
